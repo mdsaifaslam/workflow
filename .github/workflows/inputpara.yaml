@@ -1,34 +1,36 @@
-name: Deploy Application
+name: CI-CD Pipeline
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Select Environment"
-        required: true
-        default: dev
-        type: choice
-        options:
-          - dev
-          - test
-          - prod
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  build:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Show selected environment
-        run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Run Dev Deployment
-        if: ${{ github.event.inputs.environment == 'dev' }}
-        run: echo "Running deployment for DEV"
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Run Test Deployment
-        if: ${{ github.event.inputs.environment == 'test' }}
-        run: echo "Running deployment for TEST"
+      - name: Run Tests
+        run: npm test
 
-      - name: Run Prod Deployment
-        if: ${{ github.event.inputs.environment == 'prod' }}
-        run: echo "Running deployment for PROD"
+      - name: Build Application
+        run: npm run build
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Application
+        run: echo "Deploying application to production server"
