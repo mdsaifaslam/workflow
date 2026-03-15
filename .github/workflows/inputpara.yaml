@@ -1,0 +1,34 @@
+name: Deploy Application
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select Environment"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Show selected environment
+        run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
+
+      - name: Run Dev Deployment
+        if: ${{ github.event.inputs.environment == 'dev' }}
+        run: echo "Running deployment for DEV"
+
+      - name: Run Test Deployment
+        if: ${{ github.event.inputs.environment == 'test' }}
+        run: echo "Running deployment for TEST"
+
+      - name: Run Prod Deployment
+        if: ${{ github.event.inputs.environment == 'prod' }}
+        run: echo "Running deployment for PROD"
